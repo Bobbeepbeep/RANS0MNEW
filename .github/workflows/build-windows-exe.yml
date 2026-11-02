@@ -1,0 +1,33 @@
+
+name: Build RANSOM standalone EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Set up Python for build runner only
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install packaging tools
+        run: python -m pip install --upgrade pyinstaller pillow
+
+      - name: Build standalone Windows EXE
+        shell: cmd
+        run: >-
+          python -m PyInstaller --noconfirm --clean --onefile --windowed
+          --name RANSOMTRIAGE --add-data "assets;assets" RANSOM_SIM.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: RANSOMTRIAGE-Windows-EXE
+          path: dist/RANSOMTRIAGE.exe
+          if-no-files-found: error
